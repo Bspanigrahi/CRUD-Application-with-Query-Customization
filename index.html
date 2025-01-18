@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Operations</title>
+    <style>
+		body {
+		            margin: 0;
+		            padding: 0;
+		            font-family: Arial, sans-serif;
+		            color: rgb(64, 0, 64);
+		            background-image: url('backgroundimg.jpg');
+		            display: flex;
+		            flex-direction: column;
+		       
+		        }
+
+		        header h1 {
+		            text-align: center;
+		            color: rgb(64, 0, 128);
+		            margin: 20px 0;
+		        }
+
+		        .btn-group {
+		            margin: 20px 0;
+		            text-align: right;
+		            width: 100%;
+		            padding-left: 0px;
+					margin-top: 17px;
+					margin-left: -37px;
+		        }
+
+		        .btn {
+		            padding: 15px 30px;
+		            font-size: 1rem;
+		            color: white;
+		            background-color: rgb(0, 0, 255);
+		            border: none;
+		            border-radius: 5px;
+		            cursor: pointer;
+		            transition: 0.3s;
+		        }
+
+		        .btn:hover {
+		            background-color: #4CAF50;
+		            transform: scale(1.1);
+		        }
+
+		        .container {
+					max-width: 100%;
+					            margin: 20px auto;
+					            padding: 20px;
+					            background-color: rgb(240,245,255);
+					            border-radius: 8px;
+					            text-align: center;
+					            width: 100%;
+								
+		        }
+
+		        table {
+					align-items: center;
+		            width: 97%;
+		            border-collapse: collapse;
+		            margin: 20px 0;
+		            text-align: center;
+					padding:30px;
+					padding-left: 20px;
+		        }
+
+		        th, td {
+		            padding: 4px;
+		            border: 1px solid rgb(0, 0, 0);
+		        }
+
+		        th {
+		            background-color: #4CAF50;
+		            color: white;
+		        }
+
+		        tr:hover {
+		            background-color: #ddd;
+		        }
+
+		        .action-btn {
+		            padding: 8px 16px;
+		            font-size: 0.9rem;
+		            color: white;
+		            background-color: #007bff;
+		            border: none;
+		            border-radius: 4px;
+		            cursor: pointer;
+		            transition: 0.3s;
+		        }
+
+		        .action-btn:hover {
+		            background-color: #0056b3;
+		        }
+
+		        .action-btn.update {
+		            background-color: rgb(0, 0, 255);
+		        }
+
+		        .action-btn.update:hover {
+		            background-color: #218838;
+		        }
+
+		        .action-btn.delete {
+		            background-color: #dc3545;
+		        }
+
+		        .action-btn.delete:hover {
+		            background-color: #a71d2a;
+		        }
+
+		        .form-group {
+		            margin: 10px 0;
+		            display: flex;
+		            justify-content: center;
+		            align-items: center;
+		            gap: 10px;
+		        }
+
+		        .form-group label {
+		            font-size: 1rem;
+		            color: white;
+		        }
+
+		        .form-group input {
+		            padding: 10px;
+		            font-size: 1rem;
+		            border: 1px solid #ccc;
+		            border-radius: 5px;
+		        }
+
+		        .table-container h2 {
+		            margin-bottom: 10px;
+		            color: white;
+		        }
+
+		        footer {
+		            margin-top: 20px;
+		            text-align: center;
+		            color: lightgray;
+		        }
+
+		        .filter-container {
+		            width: 100%;
+		            padding: 10px;
+		            margin-top: 20px;
+		        }
+
+		        .filter-container .form-group {
+		            display: flex;
+		            justify-content: flex-start;
+		            margin-bottom: 10px;
+		        }
+
+		        .filter-container input[type="date"],
+		        .filter-container input[type="text"] {
+		            width: 300px;
+		        }
+
+		        .filter-container button {
+		            margin-left: 10px;
+		        }
+
+		        .actions-column {
+		            display: flex;
+		            justify-content: space-evenly;
+		        }
+    </style>
+</head>
+<body>
+    <header>
+        <!--  <h1>CRUD Operations Panel</h1>-->     
+    </header>
+    <main>
+        <div class="btn-group">
+            <button class="btn" onclick="location.href='/create.html'">+ Create</button>
+        </div>
+
+        <div class="container">
+            <!-- Employee Search Section -->
+            <div class="filter-container">
+                <div class="form-group">
+                    <label for="dateOfJoining">Date of Joining (Before):</label>
+                    <input type="date" id="dateOfJoining">
+                    <label for="department">Department:</label>
+                    <input type="text" id="department" placeholder="Enter department name">
+                    <button class="btn" onclick="filterEmployees()">🔍 Submit</button>
+                </div>
+            </div>
+
+            <table id="employeeTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Date of Joining</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    <!-- Employee data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer>
+        Powered by Spring Boot | Developed by Diptikrishna Panigrahi
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchEmployees();
+        });
+
+        // Fetch and display employees
+        function fetchEmployees() {
+            fetch('/getalldata') // Adjust the endpoint accordingly
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('employeeTableBody');
+                    tableBody.innerHTML = ''; // Clear the existing rows
+
+                    data.forEach(employee => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${employee.employeeId}</td>
+                            <td contenteditable="true">${employee.name}</td>
+                            <td contenteditable="true">${employee.email}</td>
+                            <td contenteditable="true">${employee.department}</td>
+                            <td contenteditable="true">${employee.dateOfJoining}</td>
+                            <td><button class="action-btn update" onclick="updateEmployee(${employee.employeeId})">Update</button></td>
+                            <td><button class="action-btn delete" onclick="deleteEmployee(${employee.employeeId})">Delete</button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching employee data:', error);
+                });
+        }
+
+        // Update employee data
+        async function updateEmployee(employeeId) {
+            const row = Array.from(document.querySelectorAll(`#employeeTableBody tr`))
+                .find(tr => tr.children[0].textContent.trim() == employeeId);
+            
+            // Prepare updated data
+            const updatedData = {
+                employeeId,
+                name: row.children[1].textContent.trim(),
+                email: row.children[2].textContent.trim(),
+                department: row.children[3].textContent.trim(),
+                dateOfJoining: row.children[4].textContent.trim(),
+            };
+
+            try {
+                const response = await fetch(`/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedData),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Employee updated successfully!');
+                    fetchEmployees(); // Refresh the table
+                } else {
+                    alert(result.message || 'Failed to update employee.');
+                }
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                alert('Failed to update employee.');
+            }
+        }
+
+        // Delete employee
+        async function deleteEmployee(employeeId) {
+            try {
+                const response = await fetch(`/delete/${employeeId}`, {
+                    method: "DELETE",
+                });
+
+                if (response.ok) {
+                    alert(`Employee with ID ${employeeId} deleted successfully!`);
+                    fetchEmployees(); // Refresh the table
+                } else {
+                    alert('Failed to delete employee.');
+                }
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+                alert('Failed to delete employee.');
+            }
+        }
+
+        // Filter employees based on date of joining and department
+        async function filterEmployees() {
+            const dateOfJoiningInput = document.getElementById('dateOfJoining').value;
+            const departmentInput = document.getElementById('department').value;
+             
+			let queryString = '?';
+			            if (dateOfJoiningInput) {
+			                queryString += `dateOfJoining=${encodeURIComponent(dateOfJoiningInput)}&`;
+			            }
+			            if (departmentInput) {
+			                queryString += `department=${encodeURIComponent(departmentInput)}&`;
+			            }
+
+			            queryString = queryString.endsWith('&') ? queryString.slice(0, -1) : queryString;
+			
+           
+            try {
+                const response = await fetch(`/getemp${queryString}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const employees = await response.json();
+                populateEmployeeTable(employees);
+            } catch (error) {
+                console.error('Error fetching employee data:', error);
+                alert('Failed to fetch employee data. Please try again.');
+            }
+        }
+
+        // Populate the employee table
+		
+		function populateEmployeeTable(employees) {
+		    const tableBody = document.getElementById('employeeTableBody');
+		    tableBody.innerHTML = ''; // Clear existing rows
+
+		    if (employees.length === 0) {
+		        const row = document.createElement('tr');
+		        const cell = document.createElement('td');
+		        cell.colSpan = 7;
+		        cell.textContent = 'No employees found.';
+		        row.appendChild(cell);
+		        tableBody.appendChild(row);
+		        return;
+		    }
+
+		    employees.forEach(employee => {
+		        const row = document.createElement('tr');
+		        row.innerHTML = `
+		            <td>${employee.employeeId}</td>
+		            <td>${employee.name}</td>
+		            <td>${employee.email}</td>
+		            <td>${employee.department}</td>
+		            <td>${employee.dateOfJoining}</td>
+		            <td><button class="action-btn update" onclick="updateEmployee(${employee.employeeId})">Update</button></td>
+		            <td><button class="action-btn delete" onclick="deleteEmployee(${employee.employeeId})">Delete</button></td>
+		        `;
+		        tableBody.appendChild(row);
+		    });
+		}
+		async function showMessage() {
+		    try {
+		        const response = await fetch('/your-endpoint');
+		        const message = await response.json();
+
+		        // Remove "http://localhost:8080" from the message if it exists
+		        const cleanMessage = message.replace("http://localhost:8080", "");
+
+		        // Show the cleaned-up message
+		        alert(cleanMessage);
+
+		    } catch (error) {
+		        console.error('Error:', error);
+		    }
+		}
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

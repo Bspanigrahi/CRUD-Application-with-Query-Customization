@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            background-image: url('background.jpg');
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgb(255, 255, 255);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: grid;
+            grid-gap: 15px;
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Registration Form</h1>
+        <form id="employeeForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter Employee Name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter Email" required>
+
+            <label for="department">Department:</label>
+            <input type="text" id="department" placeholder="Enter Department" required>
+
+            <label for="dateOfJoining">Date of Joining:</label>
+            <input type="date" id="dateOfJoining" required>
+
+            <button type="submit">Submit</button>
+			<button class="btn" onclick="location.href='/index.html'">Back</button>
+        </form>
+    </div>
+    <script>
+        // Fix form ID in JavaScript
+        document.getElementById('employeeForm').addEventListener('submit', function (event) {
+            event.preventDefault();  // Prevent default form submission
+
+            // Collect form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const department = document.getElementById('department').value;
+            const dateOfJoining = document.getElementById('dateOfJoining').value;
+
+            // Create employee data object
+            const employeeData = {
+                name: name,
+                email: email,
+                department: department,
+                dateOfJoining: dateOfJoining
+            };
+
+            // Send data to the backend API using fetch
+            fetch('/addemp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'  // Set content type to JSON
+                },
+                body: JSON.stringify(employeeData)  // Send the employee data
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add employee');
+                }
+                return response.json();  // Parse the JSON response
+            })
+            .then(data => {
+                console.log('Success:', data);
+                // Optionally, display success message or clear the form
+                alert('Employee added successfully!');
+                document.getElementById('employeeForm').reset();  // Reset the form
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Failed to add employee!');
+            });
+        });
+    </script>
+</body>
+</html>

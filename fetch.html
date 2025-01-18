@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgb(255, 255, 255);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee List</h1>
+        
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Date of Joining</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody">
+                <!-- Employee data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch employee data from the backend API and populate the table
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchEmployees();
+        });
+
+        function fetchEmployees() {
+            fetch('/getalldata') // Adjust the endpoint according to your backend
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('employeeTableBody');
+                    tableBody.innerHTML = ''; // Clear the existing rows
+
+                    // Iterate over employee data and create table rows
+                    data.forEach(employee => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${employee.employeeId}</td>
+                            <td>${employee.name}</td>
+                            <td>${employee.email}</td>
+                            <td>${employee.department}</td>
+                            <td>${employee.dateOfJoining}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching employee data:', error);
+                });
+        }
+    </script>
+</body>
+</html>
